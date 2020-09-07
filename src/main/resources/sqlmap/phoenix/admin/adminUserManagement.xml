@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="admUsrMgt">
+	<select id="userManagementListForm" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+		SELECT /** admUsrMgt.userManagementListForm */
+			  U.ARP AS ARP
+			, G.COMPANY_NM AS COMPANY_NM
+			, G.DEPT_NM AS DEPT_NM
+			, J.COD_NM AS JOB_LEVEL
+			, U.USER_ID AS USER_ID
+			, U.USER_NM AS USER_NM
+			, R.ROLE_NM AS ROLE_NM
+			, U.ACC_ST AS ACC_ST
+			, U.USE_YN AS USE_YN
+		FROM JAS_USRINF_NT U 
+			LEFT JOIN JAS_USRROL_NT R ON U.ROLE_ID = R.ROLE_ID
+			LEFT JOIN JAS_USRGRP_NT G ON U.DEPT_CD = G.DEPT_CD
+			LEFT JOIN JAS_COD_CT J ON U.JOB_LEVEL = J.COD_ID AND J.CDCLASS_ID = 'JBL'
+		WHERE 1=1
+		<isNotEmpty property="searchUserName">			
+			<isEqual property="searchUserKeyType" compareValue="">
+				AND U.USER_ID LIKE '%'|| #searchUserName# ||'%' OR U.USER_NM LIKE '%'|| #searchUserName# ||'%' OR G.DEPT_NM LIKE '%'|| #searchUserName# ||'%'
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="USER_ID">
+				AND U.USER_ID LIKE '%'|| #searchUserName# ||'%'
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="USER_NM">
+				AND U.USER_NM LIKE '%'|| #searchUserName# ||'%'
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="DEPT_NM">
+				AND G.DEPT_NM LIKE '%'|| #searchUserName# ||'%'
+			</isEqual>
+		</isNotEmpty>
+		<isNotEmpty property="searchUserUSEYN">
+				AND U.USE_YN = #searchUserUSEYN#
+		 </isNotEmpty>
+		 ORDER BY CASE U.ARP WHEN 'HO'THEN 'A' ELSE U.ARP END , TO_NUMBER(J.DISPLAY_ORDER) , U.USER_NM
+	</select>	
+	<select id="usrUserInfoModify" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >  		  		
+		 SELECT /** admUsrMgt.usrUserInfoModify */ 
+			  U.USER_ID AS USER_ID
+			, U.USER_NM AS USER_NM
+			, U.EMAIL AS EMAIL
+			, U.MOBILE_NO AS MOBILE_NO
+			, G.COMPANY_NM AS COMPANY_NM
+			, U.ARP AS ARP
+			, U.USER_PASSWORD AS USER_PASSWORD
+			, G.DEPT_NM AS DEPT_NM
+			, G.DEPT_CD AS DEPT_CD
+			, U.JOB_LEVEL AS JOB_LEVEL
+			, U.DUTY AS DUTY
+			, U.OFFICE_NO AS OFFICE_NO
+			, U.ACC_ST AS ACC_ST
+			, R.ROLE_NM AS ROLE_NM
+			, U.IP_ADDRESS AS IP_ADDRESS
+			, U.IP_CHECK_YN AS IP_CHECK_YN
+			, TO_CHAR(to_date(U.PASSWORD_CHG_DT,'yyyyMMddhhmmss'),'yyyy.MM.dd hh:mm:ss') AS PASSWORD_CHG_DT
+			, U.USERINFO_DESC AS USERINFO_DESC
+			, S.COD_ID AS USER_STATUS_ID
+			, S.COD_NM AS USER_STATUS
+			, U.STATUS_REASON AS STATUS_REASON
+			, U.FAILED_LOGIN_NUM AS FAILED_LOGIN_NUM
+			, U.LAST_MOD_ID AS LAST_MOD_ID
+			, TO_CHAR(to_date(U.LAST_MOD_DT,'yyyyMMddhhmmss'),'yyyy.MM.dd hh:mm:ss') AS LAST_MOD_DT
+			, TO_CHAR(to_date(U.LAST_LOGIN_DT,'yyyyMMddhhmmss'),'yyyy.MM.dd hh:mm:ss') AS LAST_LOGIN_DT 
+			, U.USE_YN AS USE_YN
+			, U.TOWING AS TOWING
+			, U.INTERPHONE AS INTERPHONE
+			, U.CARGOLOADER AS CARGOLOADER
+			, U.RAMPBUS AS RAMPBUS
+			, U.DE_ICING AS DE_ICING
+			, J.COD_ID AS COD_ID
+			, J.COD_NM AS COD_NM
+			, U.JOB_POS AS JOB_POS
+		FROM JAS_USRINF_NT U 
+			LEFT JOIN JAS_USRROL_NT R ON U.ROLE_ID = R.ROLE_ID
+			LEFT JOIN JAS_USRGRP_NT G ON U.DEPT_CD = G.DEPT_CD
+			LEFT JOIN JAS_COD_CT J ON J.CDCLASS_ID = 'JBL' AND J.COD_ID = U.JOB_LEVEL 
+			LEFT JOIN JAS_COD_CT S ON S.CDCLASS_ID = 'USR_STATUS' AND S.COD_ID = U.USER_STATUS_ID
+		WHERE U.USER_ID = #userid#
+		ORDER BY U.ARP
+	</select>
+	<select id="getEqmList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+	  	SELECT /** admUsrMgt.getEqmList */ 
+			  TOWING
+			, INTERPHONE
+			, CARGOLOADER
+			, RAMPBUS
+			, DE_ICING
+		FROM JAS_USRINF_NT 
+		WHERE USER_ID = #userid#
+	</select>
+	<select id="getARPList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+		SELECT /** admUsrMgt.getARPList */  
+			DISTINCT ARP 
+		FROM JAS_USRGRP_NT
+		WHERE USE_YN = 'Y'	
+		ORDER BY ARP
+	</select>
+	<select id="getDeptName" parameterClass="java.util.HashMap" resultClass="java.util.HashMap" >
+	  	SELECT /** admUsrMgt.getDeptName */ 
+			  DEPT_CD
+			, DEPT_NM
+			, ARP
+			, COMPANY_NM
+		FROM JAS_USRGRP_NT 	
+		WHERE USE_YN = 'Y'		
+		ORDER BY ARP	
+	</select>
+	<select id="getOldPWD" parameterClass="java.util.HashMap" resultClass="String">
+		SELECT /** admUsrMgt.getOldPWD */ 
+			USER_PASSWORD 
+		FROM JAS_USRINF_NT 
+		WHERE USER_ID = #USER_ID#
+	</select>
+ 	<update id="JASChangePWD" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_USRINF_NT(
+			  USER_ID
+			, USER_PASSWORD
+			, PASSWORD_CHG_DT
+			, PASSWORD_OLD
+			, FIRST_PASSWORD_YN
+			, FAILED_LOGIN_NUM
+			)
+		SELECT /** admUsrMgt.JASChangePWD */
+			  USER_ID
+			, #NEW_PWD#
+			, to_char(now(),'yyyyMMddhhmmss')
+			, #OLD_PWD#
+			, 'Y'
+			, '0'
+		FROM JAS_USRINF_NT
+		WHERE USER_ID =#USER_ID#
+	</update> 
+ 	<select id="findARP" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** admUsrMgt.findARP */ DISTINCT(ARP) AS ARP
+		FROM JAS_USRGRP_NT 
+		WHERE COMPANY_NM = #COMPANY_NM# AND USE_YN = 'Y'
+		ORDER BY 1
+	</select>
+	<update id="updateUserInfo" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_USRINF_NT /** admUsrMgt.updateUserInfo */ ( 
+			  USER_ID
+			, USER_NM
+			, EMAIL
+			, MOBILE_NO
+			, DEPT_CD
+			, JOB_LEVEL
+			, ARP
+			, ROLE_ID	
+			, USER_STATUS_ID
+			, STATUS_REASON
+			, LAST_MOD_ID
+			, LAST_MOD_IP
+			, LAST_MOD_DT
+			, USE_YN
+			, OFFICE_NO
+			, TOWING
+			, INTERPHONE
+			, CARGOLOADER
+			, RAMPBUS
+			, DE_ICING
+			, JOB_POS
+			)
+		SELECT #USER_ID#
+			, #USER_NM#
+			, #EMAIL#
+			, #MOBILE_NO#
+			, #DEPT_CD#
+			, #JOB_LEVEL#
+			, #ARP#
+			, #ROLE_ID#
+		    , #USER_STATUS_ID#
+		    , #STATUS_REASON#
+		    , #LAST_MOD_ID#
+		    , #LAST_MOD_IP#
+		    , TO_CHAR(NOW(),'yyyyMMddhhmmss')
+		    , #USE_YN#
+			, #OFFICE_NO#
+			, #TOWING#
+			, #INTERPHONE#
+			, #CARGOLOADER#
+			, #RAMPBUS#
+			, #DE_ICING#
+			, #JOB_POS#
+		 FROM JAS_USRINF_NT
+		 WHERE USER_ID = #USER_ID#
+	</update>
+	<update id="userInfoDelete" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_USRINF_NT /** admUsrMgt.userInfoDelete */ ( 
+			  USER_ID
+			, USE_YN
+			, LAST_MOD_ID
+			, LAST_MOD_IP
+			, LAST_MOD_DT
+		)
+		SELECT 
+			  USER_ID
+			, 'N'
+		    , #LAST_MOD_ID#
+		    , #LAST_MOD_IP#
+		    , TO_CHAR(NOW(),'yyyyMMddhhmmss')
+	  	FROM JAS_USRINF_NT
+	  	WHERE USER_ID = #USER_ID#
+	</update> 
+	<!-- 회원가입 -->
+	<select id="findUserManagementId" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT /** admUsrMgt.findUserManagementId */ count(*)
+	 	FROM JAS_USRINF_NT
+		WHERE USER_ID = #USER_ID#
+	</select>		
+	<select id="getCompanynm" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** admUsrMgt.getCompanynm */
+				DISTINCT(COMPANY_NM) AS COMPANY_NM 
+		FROM JAS_USRGRP_NT
+		WHERE USE_YN = 'Y'
+	</select>
+	<select id="getRoleList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** admUsrMgt.getRoleList */
+			  ROLE_ID
+			, ROLE_NM
+		FROM JAS_USRROL_NT
+		WHERE USE_YN = 'Y'
+	</select>
+	<select id="UserIdCompare" parameterClass="String" resultClass="Integer">
+		SELECT /** admUsrMgt.UserIdCompare */
+			COUNT(*)
+		FROM JAS_USRINF_NT
+		WHERE USER_ID = #userid#
+	</select>
+	<select id="usrFindDepartmentJSON" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** admUsrMgt.usrFindDepartmentJSON */
+		      DEPT_NM
+			, DEPT_CD
+		FROM JAS_USRGRP_NT
+		WHERE COMPANY_NM = #COMPANY_NM# AND ARP = #ARP# 
+		ORDER BY 1
+	</select>
+	<!--관리자 사용자 등록 저장 -->	
+	<update id="userRegisterUSRINFONT" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_USRINF_NT ( /** admUsrMgt.userRegisterUSRINFONT */
+			 USER_ID
+			, USER_NM	
+			, ACC_ST
+			, ROLE_ID 
+			, FRST_REG_ID
+			, FRST_REG_IP
+			, FRST_REG_DT
+			, USER_PASSWORD
+			, USER_STATUS_ID
+			, USE_YN
+			, FIRST_PASSWORD_YN
+			, FAILED_LOGIN_NUM
+			, ARP
+			) 
+		VALUES(  
+			  #USER_ID#
+			, #USER_NM#					
+			, 'APPROVAL'
+			, #ROLE_ID#
+			, #LAST_MOD_ID#
+			, #LAST_MOD_IP# 
+			, TO_CHAR(now(),'yyyyMMddhhmmss') 
+			, #USER_PASSWORD#
+			, 'STATUS_WORK'
+			, 'Y'
+			, 'Y'
+			, '0'
+			, #ARP#
+		) 
+<!-- 		UPSERT INTO JAS_USRINF_NT ( /** admUsrMgt.userRegisterUSRINFONT */
+			 USER_ID
+			, USER_NM	
+			, ACC_ST
+			, ROLE_ID 
+			, FRST_REG_ID
+			, FRST_REG_IP
+			, FRST_REG_DT
+			, USER_PASSWORD
+			, USER_STATUS_ID
+			, USE_YN
+			, FIRST_PASSWORD_YN
+			, FAILED_LOGIN_NUM
+			, ARP
+			) 
+		SELECT  
+			  #USER_ID#
+			, #USER_NM#					
+			, 'APPROVAL'
+			, #ROLE_ID#
+			, #sessionUserid# AS FRST_REG_ID
+			, #getLoginIp# AS FRST_REG_IP
+			, TO_CHAR(now(),'yyyyMMddhhmmss') AS FRST_REG_DT 
+			, #USER_PASSWORD#
+			, 'STATUS_WORK'
+			, 'Y'
+			, 'Y'
+			, '0'
+			, #ARP#
+		FROM JAS_USRINF_NT  -->
+	</update>
+	<!-- 사용자 정보 수정 -->
+	<update id="UserPasswordReset" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_USRINF_NT /** admUsrMgt.UserPasswordReset */ ( 
+			  USER_ID
+			, USER_PASSWORD
+			, PASSWORD_OLD
+			, PASSWORD_CHG_DT
+			, LAST_MOD_ID
+			, LAST_MOD_IP
+			, LAST_MOD_DT
+		)
+		SELECT 
+			  #userid#
+			, #USER_PASSWORD#
+			, #PASSWORD_OLD#
+			, TO_CHAR(now(),'yyyyMMddhhmmss') AS PASSWORD_CHG_DT
+			, #LAST_MOD_ID#
+			, #LAST_MOD_IP#
+			, #LAST_MOD_DT#
+		FROM JAS_USRINF_NT
+		WHERE USER_ID = #userid#
+	</update>
+</sqlMap>

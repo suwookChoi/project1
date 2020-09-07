@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="fltLir">
+	<select id="getLIRList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+ 		SELECT /** fltLir.getLIRList */ 
+			A.AFS_ID AS AFS_ID
+			,A.FLT  AS FLT 
+			,A.REG  AS REG
+			,A.TYS  AS TYS
+			,A.TYP  AS TYPE 
+			,A.ORG  AS ORG
+			,A.DES  AS DES
+			,A.FLC  AS FLC
+			,A.SOBT AS SOBT
+			, CASE WHEN ORG = #ARP# THEN DPAK
+				WHEN DES = #ARP# THEN APAK
+				ELSE DPAK END AS SPOT
+			, CASE WHEN ORG = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+				WHEN DES = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SIBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+				ELSE TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm') END AS ST
+			, CASE WHEN ORG = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.EOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+				WHEN DES = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.EIBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+				ELSE TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.EOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm') END AS ET
+			, CASE WHEN ORG = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.AOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+				WHEN DES = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.AIBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+				ELSE TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.AOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm') END AS AT
+			,L.IMGFILENAME AS IMGFILENAME
+ 			,L.RCIMGNAME AS RCIMGNAME 
+			,REGEXP_REPLACE(L.IMGPATH,'\\\\','/\/') AS IMGPATH
+ 			,REGEXP_REPLACE(L.RCIMGPATH,'\\\\','/\/') AS RCIMGPATH 
+			,CASE WHEN L.IMGPATH IS NULL OR L.IMGPATH='' THEN 'UPLOAD' ELSE 'DELETE' END AS BUTTON 
+			,CASE WHEN L.IMGPATH IS NULL OR L.IMGPATH='' THEN '-' ELSE 'LIR' END AS BUTTON2
+		FROM JAS_AFS_NT A LEFT JOIN JAS_LIRCIMG_NT L ON A.FLT = L.FLT AND A.REG = L.REG AND A.SOBT = L.SOBT
+		WHERE SUBSTR(TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'yyyyMMddHHmm'),0,8) = REGEXP_REPLACE(#SDT#, '[.]', '')
+		AND COALESCE(A.SOO,'XXX') != COALESCE('RTR','XXX')  
+		AND COALESCE(A.SOO,'XXX') != COALESCE('DLT','XXX')  
+	<isNotEmpty property="FLC">
+			AND A.FLC = #FLC#
+	</isNotEmpty>
+	<isNotEmpty property="ARP">
+			AND A.ORG = #ARP#
+	</isNotEmpty>
+	<isNotEmpty property="findTextReg">
+			AND A.REG LIKE UPPER('%'||#findTextReg#||'%')
+	</isNotEmpty>
+	<isNotEmpty property="findTextFlt">
+			AND A.FLT LIKE UPPER('%'||#findTextFlt#||'%')
+	</isNotEmpty>
+		ORDER BY (CASE WHEN ORG = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+					WHEN DES = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SIBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+					ELSE TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm') END ) 
+					
+		<!-- 			      SELECT /** fltLir.getLIRList */ 
+         A.AFS_ID AS AFS_ID
+         ,A.FLT  AS FLT 
+         ,A.REG  AS REG
+         ,A.TYS  AS TYS
+         ,A.TYP  AS TYPE 
+         ,A.ORG  AS ORG
+         ,A.DES  AS DES
+         ,A.FLC  AS FLC
+         ,A.SOBT AS SOBT
+         , CASE WHEN ORG = #ARP# THEN DPAK
+            WHEN DES = #ARP# THEN APAK
+            ELSE DPAK END AS SPOT
+         , CASE WHEN ORG = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+            WHEN DES = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SIBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+            ELSE TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm') END AS ST
+         , CASE WHEN ORG = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.EOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+            WHEN DES = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.EIBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+            ELSE TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.EOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm') END AS ET
+         , CASE WHEN ORG = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.AOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+            WHEN DES = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.AIBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+            ELSE TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.AOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm') END AS AT
+            ,L.IMGFILENAME AS IMGFILENAME
+            ,L.RCIMGNAME AS RCIMGNAME
+            ,REGEXP_REPLACE(L.IMGPATH,'\\\\','/\/') AS IMGPATH
+            ,REGEXP_REPLACE(L.RCIMGPATH,'\\\\','/\/') AS RCIMGPATH
+      FROM JAS_AFS_NT A LEFT JOIN JAS_LIRCIMG_NT L ON A.FLT = L.FLT AND A.REG = L.REG AND A.SOBT = L.SOBT
+      WHERE SUBSTR(TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'yyyyMMddHHmm'),0,8) = REGEXP_REPLACE(#SDT#, '[.]', '') -->  
+  <!--  <isNotEmpty property="FLC">
+         AND A.FLC = #FLC#
+   </isNotEmpty>
+   <isNotEmpty property="ARP">
+         AND A.ORG = #ARP#
+   </isNotEmpty>
+   <isNotEmpty property="findTextReg">
+         AND A.REG LIKE UPPER('%'||#findTextReg#||'%')
+   </isNotEmpty>
+   <isNotEmpty property="findTextFlt">
+         AND A.FLT LIKE UPPER('%'||#findTextFlt#||'%')
+   </isNotEmpty>
+      ORDER BY (CASE WHEN ORG = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+               WHEN DES = #ARP# THEN TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SIBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm')
+               ELSE TO_CHAR(TO_DATE(TO_CHAR(TO_DATE(A.SOBT, 'yyyyMMddHHmm')+TO_NUMBER('9')/24, 'yyyyMMddHHmm'),'yyyyMMddHHmm'),'HH:mm') END ) -->
+	</select>
+	
+	<select id="getFlcList" resultClass="java.util.HashMap">
+		SELECT /** fltLir.getFlcList */  DISTINCT FLC AS FLC 
+		FROM JAS_AFS_NT 
+	</select>
+	<update id="savePDFPath" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_LIRCIMG_NT( /** fltLir.savePDFPath */ 
+			  IMGPATH	
+			, IMGFILENAME
+			, FLT 
+			, REG 
+			, SOBT
+			, FRST_REG_DT
+			, FRST_REG_ID
+			, FRST_REG_IP
+			)
+		VALUES( #KEY_TARGET_REAL_PATH#
+		    , #KEY_FILE_NAME#
+		    , #FLT# 
+			, #REG# 
+			, #SOBT#
+			, TO_CHAR(NOW(), 'yyyyMMddHHmmss')
+			, #FRST_REG_ID#
+			, #FRST_REG_IP#
+			)
+	</update>
+	<update id="saveRCPDFPath" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_LIRCIMG_NT( /** fltLir.saveRCPDFPath */ 
+			  RCIMGPATH	
+			, RCIMGNAME
+			, FLT 
+			, REG 
+			, SOBT
+			, FRST_REG_DT
+			, FRST_REG_ID
+			)
+		VALUES (#KEY_TARGET_REAL_PATH#
+		    , #KEY_FILE_NAME#
+		    , #FLT# 
+			, #REG# 
+			, #SOBT#
+			, TO_CHAR(NOW(), 'yyyyMMddHHmmss')
+			, #FRST_REG_ID#)
+	</update>
+	<update id="deletePDFPath" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_LIRCIMG_NT( /** fltLir.deletePDFPath */
+			  FLT 
+			, REG 
+			, SOBT
+			<isEqual property="type" compareValue= "LIR">
+				, IMGPATH
+				, IMGFILENAME
+			</isEqual>
+			<isEqual property="type" compareValue= "RC">
+				, RCIMGPATH
+				, RCIMGNAME
+			</isEqual>
+		)
+		SELECT
+			  FLT 
+			, REG 
+			, SOBT
+			, ''
+			, ''
+		FROM JAS_LIRCIMG_NT
+		WHERE 1=1
+			<isEqual property="type" compareValue= "LIR">
+				AND	IMGFILENAME =  #pdf_name#
+			</isEqual>
+			<isEqual property="type" compareValue= "RC">
+				AND	RCIMGNAME =  #pdf_name#
+			</isEqual>	
+	</update>
+
+	<select id="getAfsList" resultClass="java.util.HashMap">
+		SELECT 
+			AFS_ID , FLAG , FLT , FLC , FLO , REG , TYP , TYS , SOBT , SIBT , EOBT , EIBT , AOBT , AIBT , ORG , DES , FLX , LID
+			, LIDDT , SOO , PAXSCH , PAXRL , DPAK , APAK , DLYD1 , DLYDT1 , DLYD2 , DLYDT2 , DLYD3 , DLYDT3 , DLYA1 , DLYAT1 , TOF
+			, FRST_REG_ID , FRST_REG_IP , FRST_REG_DT , LAST_MOD_ID , LAST_MOD_IP , LAST_MOD_DT
+		FROM JAS_AFS_NT
+		WHERE SOBT BETWEEN TO_CHAR(NOW()-2,'yyyyMMddHHmm') AND TO_CHAR(NOW()+1,'yyyyMMddHHmm')
+	</select>	
+
+	<select id="getPakOprList" resultClass="java.util.HashMap">
+		SELECT 
+			  ARP , SDT , SEQ , BCI , TER , TOW , AMI , STS , STC , FLC , FLO , REG , TYS , BSP , BEP , ORG , DES
+			, SIBT , SOBT , EIBT , EOBT , AIBT , AOBT , ERIT , EROT , SPI , SPO , ESPI , ESPO , ASPI , ASPO
+			, BTI , BTO , IID , OID , ICN , OCN , MBT , MUT , ILN , OLN , SMD , EMD , PAK , PRC , FGD , BEI
+			, TSI , LOC , DEL , RMK , FRST_REG_ID , FRST_REG_IP , FRST_REG_DT , LAST_MOD_ID , LAST_MOD_IP , LAST_MOD_DT
+		FROM JAS_PAKOPR_NT
+		WHERE SDT BETWEEN TO_CHAR(NOW()-1,'yyyyMMdd') AND TO_CHAR(NOW()+1,'yyyyMMdd')
+	</select>	
+</sqlMap>

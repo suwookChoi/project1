@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="adGroup">
+	<select id="JasGroupListGridData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** adGroup.JasGroupListGridData */
+			  COMPANY_NM
+			, ARP	
+			, ARP_NM 
+			, DEPT_LEVEL
+			, DEPT_NM
+			, DEPT_CD
+			, PAR_DEPT_NM
+			, USE_YN 
+		FROM JAS_USRGRP_NT
+		WHERE 1=1
+		<isNotEmpty property="searchUserName">
+			<isEqual property="searchUserKeyType" compareValue="">
+				AND (UPPER(ARP_NM) LIKE '%'|| UPPER(#searchUserName#) ||'%') OR (UPPER(ARP) LIKE '%'|| UPPER(#searchUserName#) ||'%') OR (UPPER(COMPANY_NM) LIKE '%'|| UPPER(#searchUserName#) ||'%') OR ( UPPER(USE_YN) LIKE '%'|| UPPER(#searchUserName#) ||'%')
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="COMPANY_NM">
+				AND UPPER(COMPANY_NM) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+			</isEqual>
+			<!-- <isEqual property="searchUserKeyType" compareValue="ARP_NM">
+				AND UPPER(ARP_NM) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+			</isEqual> -->
+			<isEqual property="searchUserKeyType" compareValue="USE_YN">
+				AND UPPER(USE_YN) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="ARP_NM">
+				AND (UPPER(ARP_NM) LIKE '%'|| UPPER(#searchUserName#) ||'%' OR UPPER(ARP) LIKE '%'|| UPPER(#searchUserName#) ||'%')
+			</isEqual>
+		</isNotEmpty>
+		ORDER BY CASE ARP WHEN 'HO' THEN '1' ELSE ARP END,DEPT_LEVEL,DEPT_NM
+	</select>
+	<select id="checkDeptCode" parameterClass="java.util.HashMap" resultClass="int">
+		SELECT /** adGroup.checkDeptCode */ COUNT(*)
+		FROM JAS_USRGRP_NT
+		WHERE DEPT_CD = #DEPT_CD#
+	</select>
+	<select id="getPARDept" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** adGroup.getPARDept */ DEPT_CD,DEPT_NM
+		FROM JAS_USRGRP_NT 
+		WHERE DEPT_CD = #PAR_DEPT_CD#
+	</select>
+	<update id="doGroupSave" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_USRGRP_NT( /** adGroup.doGroupSave */
+			  COMPANY_NM
+			, ARP
+			<!-- , ARP_NM -->
+			, PAR_DEPT_CD 
+			, PAR_DEPT_NM
+			, DEPT_CD
+			, DEPT_NM
+			, DEPT_LEVEL
+			, USERGROUP_DESC
+			, FRST_REG_ID
+			, FRST_REG_IP
+			, FRST_REG_DT
+			, USE_YN
+			)
+		VALUES(
+			  #COMPANY_NM#
+			, #ARP#
+			<!-- , #ARP_NM# -->
+			, #PAR_DEPT_CD# 
+			, #PAR_DEPT_NM#
+			, #DEPT_CD# 
+			, #DEPT_NM#
+			, #DEPT_LEVEL#
+			, #USERGROUP_DESC#
+			, #FRST_REG_ID#
+			, #FRST_REG_IP#
+			, TO_CHAR(NOW(),'yyyyMMddhhmmss')
+			, #USE_YN#
+			)
+	</update>
+	<select id="getGroupData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** adGroup.getGroupData */
+			  DEPT_CD
+			, ARP
+			, COMPANY_NM
+			, ARP_NM
+			<!-- , ARP_NM -->
+			, PAR_DEPT_CD 
+			, PAR_DEPT_NM
+			, DEPT_NM
+			, DEPT_LEVEL
+			, USERGROUP_DESC
+			, USE_YN 
+		FROM JAS_USRGRP_NT
+		WHERE DEPT_CD = #DEPT_CD#
+	</select>
+	<select id="idCheckJson" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT /** adGroup.idCheckJson */ COUNT(*) 
+		FROM JAS_USRGRP_NT
+		WHERE COMPANY_NM = #COMPANY_NM# 
+			AND ARP = #ARP# 
+			AND DEPT_NM = #DEPT_NM# 
+			AND PAR_DEPT_NM=#PAR_DEPT_NM#
+	</select>	
+	<select id="HighDeptList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** adGroup.HighDeptList */ 
+			DISTINCT DEPT_CD,DEPT_NM,ARP 
+		FROM JAS_USRGRP_NT  
+		WHERE USE_YN = 'Y' 
+		ORDER BY ARP
+	</select>
+	<update id="doGroupEditSave" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_USRGRP_NT( /** adGroup.doGroupEditSave */
+			  DEPT_CD
+			, COMPANY_NM
+			, ARP			
+			<!-- , ARP_NM -->
+			, PAR_DEPT_CD 
+			 , PAR_DEPT_NM 
+			, DEPT_NM
+			, DEPT_LEVEL
+			, USERGROUP_DESC
+			<isEqual property="TYPE" compareValue="new">
+			, FRST_REG_ID
+			, FRST_REG_IP
+			, FRST_REG_DT
+			</isEqual>
+			<isNotEqual property="TYPE" compareValue="new">
+			, LAST_MOD_ID
+			, LAST_MOD_IP 
+			, LAST_MOD_DT
+			</isNotEqual>			
+			, USE_YN)
+			 SELECT DEPT_CD
+			, COMPANY_NM
+			, #ARP#			
+			<!-- , #ARP_NM# -->
+			, #PAR_DEPT_CD#
+			, #PAR_DEPT_NM# 
+			, #DEPT_NM#
+			, #DEPT_LEVEL#
+			, #USERGROUP_DESC#
+			, #LAST_MOD_ID#
+			, #LAST_MOD_IP#
+			, TO_CHAR(NOW(),'yyyyMMddhhmmss')
+			, #USE_YN#
+		FROM JAS_USRGRP_NT
+		WHERE DEPT_CD = #DEPT_CD#
+	</update> 
+	<delete id="deleteData" parameterClass="java.util.HashMap">
+		/** adGroup.deleteData */ DELETE FROM JAS_USRGRP_NT WHERE DEPT_CD = #DEPT_CD# AND USE_YN = 'N'
+	</delete>
+	<update id="changeUseLowDept" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_USRGRP_NT (  /** adGroup.changeUseLowDept */
+			 DEPT_CD
+			, ARP
+			, COMPANY_NM
+			, DEPT_NM
+			, DEPT_LEVEL
+			, USERGROUP_DESC
+			, FRST_REG_ID
+			, FRST_REG_IP
+			, FRST_REG_DT
+			, LAST_MOD_ID
+			, LAST_MOD_IP
+			, LAST_MOD_DT
+			, USERGROUP_ID
+			, USE_YN
+			<!-- , ARP_NM -->
+			, PAR_DEPT_CD
+			, PAR_DEPT_NM
+			)
+		SELECT DEPT_CD
+			, ARP
+			, COMPANY_NM
+			, DEPT_NM
+			, DEPT_LEVEL
+			, USERGROUP_DESC
+			, FRST_REG_ID
+			, FRST_REG_IP
+			, FRST_REG_DT
+			, LAST_MOD_ID
+			, LAST_MOD_IP
+			, LAST_MOD_DT
+			, USERGROUP_ID
+			, 'N'
+			<!-- , ARP_NM -->
+			, PAR_DEPT_CD
+			, PAR_DEPT_NM
+		FROM JAS_USRGRP_NT
+		WHERE PAR_DEPT_CD =#DEPT_CD#		
+	</update>
+</sqlMap>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="common">
+	
+	<select id="getFlcCodeList" resultClass="hashmap">
+		SELECT	/*common.getFlcCodeList*/
+			FLC
+			, FLO
+		FROM JAS_FLC_CT
+		WHERE UYN = 'Y'
+	</select>
+	
+	<select id="getCodeVal" resultClass="hashmap">
+		SELECT /*common.getCodeVal*/
+			COD_ID AS CD
+			, COD_NM AS VAL
+			, DSC AS DSC
+     	FROM JAS_COD_CT     	
+     	WHERE 
+     		CDCLASS_ID = #params#
+     		AND USE_YN = 'Y'
+        ORDER BY DISPLAY_ORDER ASC
+	</select>
+	
+	<select id="getArpCodeList" resultClass="hashmap">
+		SELECT /** common.getArpCodeList */
+			ARP
+			,ICAO
+			,NTC
+			,NTNM
+			,APT
+			,RMK
+			,TMZN
+		FROM JAS_ARP_CT
+		WHERE UYN='Y'
+	</select>
+	
+</sqlMap>

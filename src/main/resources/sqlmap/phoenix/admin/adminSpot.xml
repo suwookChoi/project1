@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="usrSpot">
+	<select id="getSpotList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** usrSpot.getSpotList */
+			  ARP
+			, PAK
+			, ODR
+			, RMK
+			, USE_YN
+		FROM JAS_PAKODR_NT
+		WHERE 1=1
+		<isNotEmpty property="searchUserName">
+			<isEqual property="searchUserKeyType" compareValue="">
+				AND (UPPER(ARP) LIKE '%'|| UPPER(#searchUserName#) ||'%') OR ( UPPER(PAK) LIKE '%'|| UPPER(#searchUserName#) ||'%')
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="ARP">
+				AND UPPER(ARP) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="PAK">
+				AND UPPER(PAK) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+			</isEqual>
+		</isNotEmpty>
+		ORDER BY ARP,TO_NUMBER(REGEXP_REPLACE(ODR,'[^0-9]+','')),TO_NUMBER(REGEXP_REPLACE(PAK,'[^0-9]+',''))
+	</select>
+ 	<select id="getAprList" resultClass="java.util.HashMap">
+		SELECT /** usrSpot.getAprList */
+			 ARP
+			,ICAO
+			,CTN
+			,UYN
+		FROM JAS_ARP_CT 
+		WHERE UYN = 'Y'
+		ORDER BY ARP
+	</select> 
+ 	<select id="getSpotData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** usrSpot.getSpotData */
+			  ARP
+			, PAK
+			, ODR
+			, RMK
+			, USE_YN
+		FROM JAS_PAKODR_NT
+		WHERE ARP = #ARP# AND PAK = #PAK# AND ODR = #ODR#
+	</select> 
+	<update id="saveSpotData" parameterClass="java.util.HashMap">
+		UPSERT INTO /** usrSpot.saveSpotData */ JAS_PAKODR_NT(
+		  	  ARP
+			, PAK
+			, ODR
+			, RMK
+			, USE_YN
+			, FRST_REG_ID
+			, FRST_REG_IP
+			, FRST_REG_DT
+			
+		)VALUES(
+		  	  #ARP#
+			, #PAK#
+			, #ODR#
+			, #RMK#
+			, #USE_YN#
+			, #LAST_MOD_ID#
+			, #LAST_MOD_IP#
+			, TO_CHAR(NOW(),'yyyyMMddHHmmss')
+			
+		)
+	</update>
+	<delete id="deleteSpotData" parameterClass="java.util.HashMap">
+		DELETE /** usrSpot.deleteSpotData */ FROM JAS_PAKODR_NT WHERE ARP =  #ARP# AND PAK = #PAK# AND ODR=#ODR# 
+	</delete>
+
+</sqlMap>

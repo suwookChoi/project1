@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="adminCodAirport">
+
+	<select id="getAirportList" resultClass="java.util.HashMap">
+	    SELECT  /** adminCodAirport.getAirportList */
+			ARP
+			, ICAO
+			, NTC
+	        , NTNM
+	        , CTN
+	        , APT
+	        , UYN
+	        , TMZN
+	        , RMK
+	      FROM JAS_ARP_CT
+		 WHERE 1 = 1
+			<isNotEmpty property="searchType">
+				<isEqual property="searchType" compareValue="ARP">
+					AND UPPER(ARP) LIKE '%'||UPPER(#searchText#)||'%'
+				</isEqual>
+				<isEqual property="searchType" compareValue="ICAO">
+					AND UPPER(ICAO) LIKE '%'||UPPER(#searchText#)||'%'
+				</isEqual>
+				<isEqual property="searchType" compareValue="NTC">
+					AND UPPER(NTC) LIKE '%'||UPPER(#searchText#)||'%'
+				</isEqual>
+				<isEqual property="searchType" compareValue="NTNM">
+					AND UPPER(NTNM) LIKE '%'||UPPER(#searchText#)||'%'
+				</isEqual>
+			</isNotEmpty>
+		 ORDER BY ARP
+	</select>
+	
+	
+	<select id="findAirport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** adminCodAirport.findAirport */ 
+			COUNT(ARP) AS CNT
+		FROM JAS_ARP_CT
+		WHERE ARP = #ARP#
+	</select>
+	
+	<insert id="createAirport" parameterClass="java.util.HashMap">
+	UPSERT INTO JAS_ARP_CT /** adminCodAirport.createAirport */ (
+			  ARP, ICAO, NTC, NTNM, CTN, APT, UYN, TMZN, RMK
+			<isNotEqual property="CHK" compareValue="u">
+			, FRST_REG_ID, FRST_REG_IP, FRST_REG_DT
+			</isNotEqual>
+			<isEqual property="CHK" compareValue="u">
+			, LAST_MOD_ID, LAST_MOD_IP, LAST_MOD_DT
+			</isEqual>
+	) VALUES(
+			#ARP#, #ICAO#, #NTC#, #NTNM#, #CTN#, #APT#, #UYN#, #TMZN#, #RMK#
+			, #LAST_MOD_ID#, #LAST_MOD_IP#, TO_CHAR(NOW(), 'yyyyMMddHHmmss')
+	)
+	</insert>
+
+
+<select id="selectAirport" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+	SELECT /** adminCodAirport.selectAirport */
+			  ARP, ICAO, NTC, NTNM, CTN, APT, UYN, TMZN, RMK
+	FROM JAS_ARP_CT
+	WHERE ARP = #ARP#
+</select>
+
+<delete id="deleteAirport" >
+	DELETE /** adminCodAirport.deleteAirport */
+	FROM JAS_ARP_CT
+	WHERE ARP = #ARP#
+</delete>
+
+</sqlMap>

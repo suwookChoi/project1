@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="admCmc">
+	<select id="getCommonCodeList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** admCmc.getCommonCodeList */
+			  CDCLASS_ID
+			, CDCLASS_NM
+			, CDCLASS_TYPE
+			, USE_YN 
+		FROM JAS_CODCMC_CT
+		WHERE 1=1
+		<isNotEmpty property="searchUserName">
+			<isEqual property="searchUserKeyType" compareValue="">
+				AND (UPPER(CDCLASS_TYPE) LIKE '%' || UPPER(#searchUserName#) ||'%'	OR CDCLASS_ID LIKE '%'|| UPPER(#searchUserName#) ||'%' OR CDCLASS_ID LIKE '%'|| UPPER(#searchUserName#) ||'%')
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="CDCLASS_ID">
+				AND CDCLASS_ID LIKE '%'|| UPPER(#searchUserName#) ||'%'
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="CDCLASS_NM">
+				AND UPPER(CDCLASS_NM) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+			</isEqual>
+			<isEqual property="searchUserKeyType" compareValue="CDCLASS_TYPE">
+				AND UPPER(CDCLASS_TYPE) LIKE '%' || UPPER(#searchUserName#) ||'%'
+			</isEqual>
+		</isNotEmpty>		
+	</select>
+	<select id="JasCommonCodeModify" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** admCmc.JasCommonCodeModify */
+			  CDCLASS_ID
+			, CDCLASS_NM
+			, CDCLASS_TYPE
+			, DSC
+			, USE_YN
+			, LAST_MOD_ID
+			, LAST_MOD_IP
+			, LAST_MOD_DT
+		FROM JAS_CODCMC_CT
+		WHERE CDCLASS_ID = #CDCLASS_ID#			
+	</select>
+	<update id="commonCodeModifySave" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_CODCMC_CT( /** admCmc.commonCodeModifySave */
+			 CDCLASS_ID
+			, CDCLASS_NM
+			, CDCLASS_TYPE
+			, DSC
+			, USE_YN
+			, LAST_MOD_ID
+			, LAST_MOD_IP
+			, LAST_MOD_DT
+		)
+		SELECT 	CDCLASS_ID	
+			, #CDCLASS_NM#
+			, #CDCLASS_TYPE#
+			, #DSC#
+			, #USE_YN#
+			, #LAST_MOD_ID#
+			, #LAST_MOD_IP#
+			, TO_CHAR(now(),'yyyyMMddhhmmss') AS LAST_MOD_DT 
+		FROM JAS_CODCMC_CT
+		WHERE CDCLASS_ID = #CDCLASS_ID#	
+	</update>
+	<update id="commonCodeNewSave" parameterClass="java.util.HashMap">
+		UPSERT /** admCmc.commonCodeNewSave */ INTO JAS_CODCMC_CT(
+			  CDCLASS_ID
+			, CDCLASS_NM
+			, CDCLASS_TYPE
+			, DSC
+			, USE_YN
+			, FRST_REG_ID
+			, FRST_REG_IP
+			, FRST_REG_DT
+		)
+		VALUES(	
+			  #CDCLASS_ID#
+			, #CDCLASS_NM#
+			, #CDCLASS_TYPE#
+			, #DSC#
+			, #USE_YN#
+			, #FRST_REG_ID#
+			, #FRST_REG_IP#
+			, TO_CHAR(now(),'yyyyMMddhhmmss'))		
+	</update>
+	<delete id="commonCodeDelete" parameterClass="java.util.HashMap">
+		/** admCmc.commonCodeDelete */DELETE FROM JAS_CODCMC_CT WHERE CDCLASS_ID = #CDCLASS_ID# AND USE_YN='N'
+	</delete>
+	<update id="changCodeUseYn" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_COD_CT ( /** admCmc.changCodeUseYn */
+			 COD_ID
+		    ,USE_YN
+		    )
+		SELECT COD_ID
+		  , 'N'
+		FROM JAS_COD_CT
+		WHERE CDCLASS_ID = #CDCLASS_ID#
+	</update>
+	<select id="CommoneCodeIdCheck"  parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT /** admCode.CommoneCodeIdCheck */ COUNT(*) 
+		FROM JAS_CODCMC_CT
+		WHERE CDCLASS_ID = #CDCLASS_ID#
+	</select>
+	
+</sqlMap>

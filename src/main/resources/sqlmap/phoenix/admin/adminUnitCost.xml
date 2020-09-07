@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="admUnitCost">
+	<select id="getUnitCostList" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** admUnitCost.getUnitCostList */      U.AIRCRAFT AS AIRCRAFT     
+			, U.AIRCRAFT AS HIDARIRCRAFT      
+			, U.ARP AS ARP
+			, U.ARP AS ARP_NM
+			, C.COD_NM AS COD_NM    
+			, C.COD_ID  AS COD_ID
+			, U.COSTRATES AS COSTRATES    
+			, SUBSTR(U.START_DT,0,4) || '.' ||SUBSTR(U.START_DT,5,6) AS START_DT   
+			, SUBSTR(U.END_DT ,0,4) || '.' ||SUBSTR(U.END_DT ,5,6) AS END_DT  
+			, SUBSTR(U.START_DT,5,6) AS START_DT_MM
+			, SUBSTR(U.START_DT,0,4) AS START_DT_YEAR        
+		FROM JAS_UCR_NT U LEFT JOIN JAS_COD_CT C ON C.CDCLASS_ID = 'UCR' AND C.COD_ID = U.GHTYPE
+		WHERE 1=1 
+			AND TO_NUMBER(#START_DT_YEAR#||#START_DT_MM#) BETWEEN TO_NUMBER(U.START_DT) AND TO_NUMBER(U.END_DT) 
+		<isNotEmpty property="AIRCRAFT">
+			AND U.AIRCRAFT = #AIRCRAFT#
+		</isNotEmpty>
+		<isNotEmpty property="ARP">
+			AND U.ARP= #ARP#
+		 </isNotEmpty> 
+		ORDER BY U.AIRCRAFT,U.ARP,C.COD_NM 
+	</select>
+	<select id="getSearchAirCraftData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			SELECT /** admUnitCost.getSearchAirCraftData */ DISTINCT(AIRCRAFT) AS AIRCRAFT
+			FROM JAS_UCR_NT 
+	</select>
+	<select id="getSearchARPData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			SELECT /** admUnitCost.getSearchARPData */ DISTINCT ARP ,ARP_NM 
+			FROM JAS_UCR_NT  
+	</select>
+	<select id="getSearchDateData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			SELECT /** admUnitCost.getSearchDateData */ MIN(YEAR)||'' AS MIN_YEAR, MAX(YEAR)||'' AS MAX_YEAR
+			FROM(
+				SELECT DISTINCT SUBSTR(START_DT,1,4) AS YEAR FROM JAS_UCR_NT
+				UNION ALL 
+				SELECT DISTINCT SUBSTR(END_DT,1,4) AS YEAR FROM JAS_UCR_NT
+			)
+	</select>
+		
+	<select id="geUnitCosttDetailData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">		
+		SELECT /** admUnitCost.geUnitCosttDetailData */ 
+			  AIRCRAFT
+			, U.ARP AS ARP
+			, U.ARP_NM AS ARP_NM
+			, C.COD_NM AS COD_NM
+			, C.COD_ID AS COD_ID
+			, SUBSTR(START_DT,0,4) AS START_DT_YY 
+			, SUBSTR(START_DT,5,6) AS START_DT_MM 
+			, SUBSTR(END_DT,0,4) AS END_DT_YY
+			, SUBSTR(END_DT,5,6) AS END_DT_MM
+			, START_DT ,END_DT ,COSTRATES 
+		FROM JAS_UCR_NT U LEFT JOIN JAS_COD_CT C ON C.CDCLASS_ID = 'UCR' AND U.GHTYPE = C.COD_ID
+		WHERE AIRCRAFT= #AIRCRAFT# 
+			AND U.ARP =#ARP# 
+			AND COD_ID = #COD_ID# 
+			AND #START_DT_MM# = SUBSTR(START_DT,5,6)
+			AND #START_DT_YEAR# = SUBSTR(START_DT,0,4)
+	</select>
+	<select id="getArpList"  resultClass="java.util.HashMap">
+	 	SELECT /** admUnitCost.getArpList */
+	 		DISTINCT ARP,CTN 
+		FROM JAS_ARP_CT
+		ORDER BY CASE ARP WHEN 'ICN' THEN 'A' WHEN 'GMP' THEN 'AA' ELSE ARP END
+	</select>	
+	<select id="UnitCostFindAIR"  parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+		SELECT /** admUnitCost.UnitCostFindAIR */ 
+		 		DISTINCT FLC 
+		FROM JAS_FLC_CT 
+		WHERE UYN='Y'
+	</select>
+	<select id="checkData" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT /** admUnitCost.checkData */ 
+				COUNT(*)
+		FROM JAS_UCR_NT
+	<!--	WHERE ARP = #ARP# AND AIRCRAFT = #AIRCRAFT# AND  GHTYPE = #COD_ID#
+			AND (( TO_NUMBER(#START_DT_YY#) BETWEEN TO_NUMBER(SUBSTR(START_DT,0,4)) AND TO_NUMBER(SUBSTR(END_DT,0,4)) 
+				AND TO_NUMBER(#START_DT_MM#) BETWEEN TO_NUMBER(SUBSTR(START_DT,5,6)) AND TO_NUMBER(SUBSTR(END_DT,5,6)) 
+			OR ( TO_NUMBER(SUBSTR(START_DT,0,4)) BETWEEN TO_NUMBER(#START_DT_YY#) AND TO_NUMBER(#END_DT_YY#) 
+			AND TO_NUMBER(SUBSTR(START_DT,5,6)) BETWEEN TO_NUMBER(#START_DT_MM#) AND TO_NUMBER(#END_DT_MM#) )))  -->
+		WHERE 
+			ARP = #ARP# 
+			AND AIRCRAFT = #AIRCRAFT# 
+			AND GHTYPE = #COD_ID#
+			<![CDATA[
+			AND 
+			(
+				(
+					TO_DATE(#START_DT_YY#||#START_DT_MM#,'yyyyMM') >= TO_DATE(START_DT,'yyyyMM')
+					AND TO_DATE(#START_DT_YY#||#START_DT_MM#,'yyyyMM') <= TO_DATE(END_DT,'yyyyMM')
+				)
+				OR
+				(
+					TO_DATE(#END_DT_YY#||#END_DT_MM#,'yyyyMM') >= TO_DATE(START_DT,'yyyyMM')
+					AND TO_DATE(#END_DT_YY#||#END_DT_MM#,'yyyyMM') <= TO_DATE(END_DT,'yyyyMM')
+				)
+				OR
+				(
+					TO_DATE(#START_DT_YY#||#START_DT_MM#,'yyyyMM') < TO_DATE(START_DT,'yyyyMM')
+					AND TO_DATE(#END_DT_YY#||#END_DT_MM#,'yyyyMM') > TO_DATE(END_DT,'yyyyMM')
+				)
+			)
+			]]>
+			
+		
+	</select>
+	<update id="NewUnitCostSave" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_UCR_NT /** admUnitCost.NewUnitCostSave */ (AIRCRAFT,ARP,GHTYPE,START_DT,END_DT,COSTRATES,FRST_REG_ID,FRST_REG_IP,FRST_REG_DT)
+		VALUES(#AIRCRAFT#,#ARP#,#COD_ID#,#START_DT#,#END_DT#,#COSTRATES#,#FRST_REG_ID#,#FRST_REG_IP#,TO_CHAR(now(),'yyyyMMddhhmmss'))		
+	</update>
+	<update id="EditUnitCostSave" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_UCR_NT /** admUnitCost.EditUnitCostSave */ (
+			  AIRCRAFT
+			, ARP
+			<!-- , ARP_NM -->
+			, GHTYPE
+			, START_DT
+			, END_DT
+			, LAST_MOD_ID
+			, LAST_MOD_IP
+			, LAST_MOD_DT
+			, COSTRATES
+			)
+		SELECT #AIRCRAFT#
+			, #ARP#
+			<!-- , #ARP_NM# -->
+			, #COD_ID#
+			, #START_DT#
+			, #END_DT#
+			, #LAST_MOD_ID#
+			, #LAST_MOD_IP#
+			, TO_CHAR(now(),'yyyyMMddhhmmss'))
+			, #COSTRATES#
+		FROM JAS_UCR_NT
+		WHERE AIRCRAFT = #AIRCRAFT# AND ARP = #ARP# AND GHTYPE = #COD_ID#
+	</update>
+	<delete id="deleteunitCost" parameterClass="java.util.HashMap">
+		DELETE FROM JAS_UCR_NT /** admUnitCost.deleteunitCost */
+		WHERE AIRCRAFT = #AIRCRAFT# AND ARP = #ARP# AND GHTYPE = #COD_ID#  AND START_DT=#START_DT# AND END_DT=#END_DT#
+	</delete>
+	<delete id="orgDeleteUnitCost" parameterClass="java.util.HashMap">
+		DELETE FROM JAS_UCR_NT /** admUnitCost.orgDeleteUnitCost */
+		WHERE AIRCRAFT = #orgAIRCRAFT# AND ARP = #orgARP# AND GHTYPE = #orgGHTYPE#  AND START_DT=#orgSTARTDT# AND END_DT=#orgENDDT#
+	</delete>
+</sqlMap>

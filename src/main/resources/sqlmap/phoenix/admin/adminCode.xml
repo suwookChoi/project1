@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="admCode">
+	<select id="getCodeGridData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">		
+<!-- 			SELECT /** admCode.getCodeGridData */ C.CDCLASS_ID AS CDCLASS_ID
+				,M.CDCLASS_TYPE AS CDCLASS_TYPE
+				,C.COD_ID AS COD_ID
+				,C.COD_NM AS COD_NM
+				,C.DISPLAY_ORDER AS DISPLAY_ORDER
+				,C.USE_YN AS USE_YN 
+			FROM JAS_COD_CT C 
+			LEFT JOIN JAS_CODCMC_CT M 
+			ON C.CDCLASS_ID = M.CDCLASS_ID
+			WHERE 1=1 -->
+			
+			SELECT /** admCode.getCodeGridData */
+				C.CDCLASS_ID AS CDCLASS_ID
+				<!-- COALESCE(C.CDCLASS_ID ,'ETC') AS CDCLASS_ID -->
+				,COALESCE(M.CDCLASS_TYPE,'ETC') AS CDCLASS_TYPE			
+				,C.COD_ID AS COD_ID
+				,C.COD_NM AS COD_NM
+				,C.DISPLAY_ORDER AS DISPLAY_ORDER
+				,C.USE_YN AS USE_YN 
+			FROM JAS_COD_CT C 
+			LEFT JOIN JAS_CODCMC_CT M 
+			ON C.CDCLASS_ID = M.CDCLASS_ID
+			WHERE 1=1
+			<isNotEmpty property="searchUserName">
+				<isEqual property="searchUserKeyType" compareValue="">
+					AND (UPPER(M.CDCLASS_TYPE) LIKE '%'|| UPPER(#searchUserName#) ||'%') OR ( UPPER(C.CDCLASS_ID) LIKE '%'|| UPPER(#searchUserName#) ||'%') OR ( UPPER(C.COD_ID) LIKE '%'|| UPPER(#searchUserName#) ||'%' )OR ( UPPER(C.COD_NM) LIKE '%'|| UPPER(#searchUserName#) ||'%' ) OR ( UPPER(C.USE_YN) LIKE '%'|| UPPER(#searchUserName#) ||'%')
+				</isEqual>
+				<isEqual property="searchUserKeyType" compareValue="CDCLASS_TYPE">
+					AND UPPER(M.CDCLASS_TYPE) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+				</isEqual>
+				<isEqual property="searchUserKeyType" compareValue="CDCLASS_ID">
+					AND UPPER(C.CDCLASS_ID) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+				</isEqual>
+				<isEqual property="searchUserKeyType" compareValue="COD_ID">
+					AND UPPER(C.COD_ID) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+				</isEqual>
+						<isEqual property="searchUserKeyType" compareValue="COD_NM">
+					AND UPPER(C.COD_NM) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+				</isEqual>
+						<isEqual property="searchUserKeyType" compareValue="USE_YN">
+					AND UPPER(C.USE_YN) LIKE '%'|| UPPER(#searchUserName#) ||'%'
+				</isEqual>
+			</isNotEmpty>
+			ORDER BY M.CDCLASS_TYPE,C.CDCLASS_ID,TO_NUMBER(C.DISPLAY_ORDER)
+	</select>
+	<select id="JasCodeDetailData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">		
+		SELECT /** admCode.JasCodeDetailData */
+			 C.CDCLASS_ID AS CDCLASS_ID
+			<!--,M.CDCLASS_TYPE AS CDCLASS_TYPE -->
+			<!--  COALESCE(C.CDCLASS_ID ,'ETC') AS CDCLASS_ID -->
+			,COALESCE(M.CDCLASS_TYPE,'ETC') AS CDCLASS_TYPE
+			,C.COD_ID AS COD_ID
+			,C.COD_NM AS COD_NM
+			,C.DISPLAY_ORDER AS DISPLAY_ORDER
+			,C.USE_YN AS USE_YN
+			,C.COD_NM2 AS COD_NM2
+			,C.COD_NM3 AS COD_NM3
+			,C.ETC AS ETC,C.ETC2 AS ETC2
+			,C.DSC AS DSC
+		FROM JAS_COD_CT C LEFT JOIN JAS_CODCMC_CT M ON C.CDCLASS_ID=M.CDCLASS_ID
+		WHERE C.COD_ID = #COD_ID#
+	</select>
+	<select id="getCMCCodeType" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">		
+		SELECT	/** admCode.getCMCCodeType */ CDCLASS_ID,CDCLASS_TYPE 
+		FROM JAS_CODCMC_CT 
+		WHERE USE_YN = 'Y'
+	</select>
+ 	<update id="newCodeSave" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_COD_CT(/** admCode.newCodeSave */
+			CDCLASS_ID
+			,COD_ID
+			,COD_NM
+			,DISPLAY_ORDER
+			,USE_YN
+			,COD_NM2
+			,COD_NM3
+			,DSC
+			,ETC
+			,ETC2
+			,FRST_REG_ID
+			,FRST_REG_IP 
+			,FRST_REG_DT 
+		)VALUES
+			(#CDCLASS_ID#
+			,#COD_ID#
+			,#COD_NM#
+			,#DISPLAY_ORDER#
+			,#USE_YN#
+			,#COD_NM2#
+			,#COD_NM3#
+			,#DSC#
+			,#ETC#
+			,#ETC2#
+			,#LAST_MOD_ID#
+			,#LAST_MOD_IP# 
+			,TO_CHAR(now(),'yyyyMMddhhmmss'))
+	</update>
+	<update id="editCodeSave"  parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_COD_CT( /** admCode.editCodeSave */
+			CDCLASS_ID
+			,COD_ID
+			,COD_NM
+			,DISPLAY_ORDER
+			,USE_YN
+			,COD_NM2
+			,COD_NM3
+			,DSC
+			,ETC
+			,ETC2
+			,LAST_MOD_ID
+			,LAST_MOD_IP 
+			,LAST_MOD_DT) 
+		SELECT #CDCLASS_ID#
+			,COD_ID
+			,#COD_NM#
+			,#DISPLAY_ORDER#
+			,#USE_YN#
+			,#COD_NM2#
+			,#COD_NM3#
+			,#DSC#
+			,#ETC#
+			,#ETC2#
+			,#LAST_MOD_ID#
+			,#LAST_MOD_IP# 
+			,TO_CHAR(now(),'yyyyMMddhhmmss') 
+		FROM JAS_COD_CT
+		WHERE COD_ID = #COD_ID#
+	</update> 
+	<select id="checkCodeId" parameterClass="java.util.HashMap" resultClass="java.lang.Integer">
+		SELECT /** admCode.checkCodeId */ 
+			COUNT(*) 
+		FROM JAS_COD_CT
+		WHERE COD_ID = #COD_ID#
+	</select>
+	<delete id="codeDelete" parameterClass="java.util.HashMap">
+		DELETE /** admCode.codeDelete */
+		FROM JAS_COD_CT 
+		WHERE COD_ID = #COD_ID#
+	</delete> 
+</sqlMap>

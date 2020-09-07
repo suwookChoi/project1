@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="mainRc">
+
+	<select id="getRCData" parameterClass="java.util.HashMap" resultClass="java.util.HashMap">
+			SELECT 	/** mainRc.getRCData */
+				 SEQ AS SEQ
+				, BSP AS FLT
+				, ARP AS ARP
+				, STA AS STA
+				, DEP AS DEP
+				, SDT AS SDT
+				, REG AS REG
+				, TYP AS TYP
+				, SPOT AS SPOT
+				, WTDATE AS WTDATE
+				, ATA AS ATA
+				, ATD AS ATD
+				, ROUTE1 AS ROUTE1
+				, ROUTE2 AS ROUTE2
+				, ROUTE3 AS ROUTE3
+				, RCNAME AS RCNAME
+				, RAMPSUPERVISOR AS RAMPSUPERVISOR 
+				, GTRCP AS GTRCP
+				, CHECK11 AS CHECK11
+				, CHECK12 AS CHECK12
+				, CHECK13 AS CHECK13
+				, CHECK14 AS CHECK14
+				, CHECK15 AS CHECK15
+				, CHECK16 AS CHECK16
+				, CHECK17 AS CHECK17
+				, CHECK18 AS CHECK18
+				, CHECK19 AS CHECK19
+				, CHECK21 AS CHECK21
+				, CHECK22 AS CHECK22
+				, CHECK31 AS CHECK31
+				, CHECK32 AS CHECK32
+				, CHECK33 AS CHECK33
+				, CHECK34 AS CHECK34
+				, CHECK41 AS CHECK41
+				, CHECK42 AS CHECK42
+				, CHECK43 AS CHECK43
+				, CHECK44 AS CHECK44
+				, CHECK45 AS CHECK45
+				, CHECK46 AS CHECK46
+				, CHECK51 AS CHECK51
+				, CHECK52 AS CHECK52
+				, CHECK53 AS CHECK53
+				, CHECK54 AS CHECK54
+				, BG_ARRPCS AS BG_ARRPCS 
+				, BG_ARRKG  AS BG_ARRKG  
+				, BG_DEPPCS AS BG_DEPPCS 
+				, BG_DEPKG  AS BG_DEPKG  
+				, BG_OFF    AS BG_OFF    
+				, FRE_ARRPCS  AS FRE_ARRPCS 
+				, FRE_ARRKG   AS FRE_ARRKG  
+				, FRE_DEPPCS  AS FRE_DEPPCS 
+				, FRE_DEPKG   AS FRE_DEPKG  
+				, FRE_ULD     AS FRE_ULD    
+				, FRE_OFF     AS FRE_OFF    
+				, COM1_ARR    AS COM1_ARR   
+				, COM2_ARR    AS COM2_ARR   
+				, COM3_ARR    AS COM3_ARR   
+				, COM4_ARR    AS COM4_ARR   
+				, COM1_DEP    AS COM1_DEP   
+				, COM2_DEP    AS COM2_DEP   
+				, COM3_DEP    AS COM3_DEP   
+				, COM4_DEP    AS COM4_DEP				
+			FROM JAS_RCCL_NT
+			<!-- WHERE ARP = #ARP# AND SDT = #SDT# AND FLT = #FLT#  -->
+	</select>
+	<!--
+	<update id="getRCData" parameterClass="java.util.HashMap">
+		UPSERT INTO JAS_RCCL_NT(
+		 		SEQ 
+				, BSP 
+				, ARP 
+				, STA 
+				, DEP 
+				, SDT 
+				, REG 
+				, TYP 
+				, SPOT 
+				, WTDATE 
+				, ATA 
+				, ATD 
+				, ROUTE1 
+				, ROUTE2 
+				, ROUTE3 
+				, RCNAME 
+				, RAMPSUPERVISOR  
+				, GTRCP 
+				, CHECK11 
+				, CHECK12 
+				, CHECK13 
+				, CHECK14 
+				, CHECK15 
+				, CHECK16 
+				, CHECK17 
+				, CHECK18 
+				, CHECK19 
+				, CHECK21 
+				, CHECK22 
+				, CHECK31 
+				, CHECK32 
+				, CHECK33 
+				, CHECK34 
+				, CHECK41 
+				, CHECK42 
+				, CHECK43 
+				, CHECK44 
+				, CHECK45 
+				, CHECK46 
+				, CHECK51 
+				, CHECK52 
+				, CHECK53 
+				, CHECK54 
+				, BG_ARRPCS 
+				, BG_ARRKG  
+				, BG_DEPPCS 
+				, BG_DEPKG  
+				, BG_OFF    
+				, FRE_ARRPCS  
+				, FRE_ARRKG   
+				, FRE_DEPPCS  
+				, FRE_DEPKG   
+				, FRE_ULD     
+				, FRE_OFF     
+				, COM1_ARR    
+				, COM2_ARR    
+				, COM3_ARR    
+				, COM4_ARR    
+				, COM1_DEP    
+				, COM2_DEP    
+				, COM3_DEP    
+				, COM4_DEP    
+				, FRST_REG_ID
+				, FRST_REG_DT 
+				, LAST_MOD_ID 
+				, LAST_MOD_DT 			
+		
+		)
+		SELECT 	/** mainRc.getRCData */
+				 SEQ 
+				<isEmpty property="FLT">
+				,#FLT#
+				</isEmpty>
+				<isNotEmpty property="FLT">
+				,BSP
+				</isNotEmpty>
+				<isEmpty property="ARP">
+				,#ARP#
+				</isEmpty>
+				<isNotEmpty property="ARP">
+				,ARP
+				</isNotEmpty>
+				,#STA#
+				, #DEP#
+				<isEmpty property="SDT">
+				,#SDT#
+				</isEmpty>
+				<isNotEmpty property="SDT">
+				,SDT
+				</isNotEmpty>
+				<isEmpty property="REG">
+				,#REG#
+				</isEmpty>
+				<isNotEmpty property="REG">
+				,REG
+				</isNotEmpty>
+				, #TYP#
+				, #SPOT#
+				, #WTDATE#
+				, #ATA#
+				, #ATD#
+				, #ROUTE1#
+				, #ROUTE2#
+				, #ROUTE3#
+				, #RCNAME#
+				, #RAMPSUPERVISOR# 
+				, #GTRCP#
+				, #CHECK11#
+				, #CHECK12#
+				, #CHECK13#
+				, #CHECK14#
+				, #CHECK15#
+				, #CHECK16#
+				, #CHECK17#
+				, #CHECK18#
+				, #CHECK19#
+				, #CHECK21#
+				, #CHECK22#
+				, #CHECK31#
+				, #CHECK32#
+				, #CHECK33#
+				, #CHECK34#
+				, #CHECK41#
+				, #CHECK42#
+				, #CHECK43#
+				, #CHECK44#
+				, #CHECK45#
+				, #CHECK46#
+				, #CHECK51#
+				, #CHECK52#
+				, #CHECK53#
+				, #CHECK54#
+				, #BG_ARRPCS# 
+				, #BG_ARRKG#  
+				, #BG_DEPPCS# 
+				, #BG_DEPKG#  
+				, #BG_OFF#    
+				, #FRE_ARRPCS#
+				, #FRE_ARRKG# 
+				, #FRE_DEPPCS#
+				, #FRE_DEPKG# 
+				, #FRE_ULD#   
+				, #FRE_OFF#   
+				, #COM1_ARR#  
+				, #COM2_ARR#  
+				, #COM3_ARR#  
+				, #COM4_ARR#  
+				, #COM1_DEP#  
+				, #COM2_DEP#  
+				, #COM3_DEP#  
+				, #COM4_DEP# 
+				<isEmpty property="FRST_REG_ID">
+				, #LAST_MOD_ID# 
+				, #LAST_MOD_IP#
+				, #LAST_MOD_DT#	
+				</isEmpty>
+				<isNotEmpty property="FRST_REG_ID">
+				, FRST_REG_ID
+				, FRST_REG_IP
+				, FRST_REG_DT
+				</isNotEmpty> 
+				, #LAST_MOD_ID# 
+				, #LAST_MOD_IP#
+				, #LAST_MOD_DT#			
+			FROM JAS_RCCL_NT
+			WHERE ARP = #ARP# AND SDT = #SDT# AND BSP = #FLT#
+	</update> -->
+</sqlMap>
